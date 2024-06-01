@@ -1,7 +1,10 @@
 {
-  "name": "@uniswap/sdk",
+  "name": "@nnmax/uniswap-sdk-v2",
   "license": "MIT",
-  "version": "3.0.2",
+  "version": "1.0.4",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "🛠 An SDK for building applications on top of Uniswap.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
