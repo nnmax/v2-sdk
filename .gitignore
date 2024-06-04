@@ -2,4 +2,4 @@ dist
 node_modules
 
 .yarn/*
-!.yarn/release
+!.yarn/releases
