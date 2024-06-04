@@ -22,7 +22,8 @@
     "build": "tsdx build",
     "start": "tsdx watch",
     "test": "tsdx test",
-    "prepublishOnly": "tsdx build"
+    "prepublishOnly": "tsdx build",
+    "tsc": "node_modules/.bin/tsc --noEmit --project tsconfig.json"
   },
   "dependencies": {
     "@uniswap/v2-core": "^1.0.0",
@@ -58,5 +59,6 @@
     "printWidth": 120,
     "semi": false,
     "singleQuote": true
-  }
+  },
+  "packageManager": "yarn@4.2.2"
 }

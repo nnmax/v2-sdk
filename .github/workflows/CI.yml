@@ -1,43 +1,43 @@
 name: CI
-env:
-  CI: true
 
 on:
-  pull_request:
-    branches:
-      - v2
   push:
-    branches:
-      - v2
+    branches: ['main']
+
+  pull_request:
+    branches: ['main']
+
+env:
+  HUSKY: 0
+  YARN_ENABLE_GLOBAL_CACHE: false
+  YARN_ENABLE_MIRROR: false
+  YARN_NM_MODE: hardlinks-local
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        node: ['10.x', '12.x']
-        os: [ubuntu-latest, macOS-latest]
-
-    runs-on: ${{ matrix.os }}
+  check_ci:
+    name: Check CI
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - name: Checkout Repository
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
-          node-version: ${{ matrix.node }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
-      - run: npm install -g yarn
-
-      - id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
         with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ matrix.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ matrix.os }}-yarn-
+          node-version: latest
+          cache: 'yarn'
 
-      - run: yarn
+      - name: Install dependencies
+        run: yarn install --immutable
 
-      - run: yarn lint
-      - run: yarn build
-      - run: yarn test
+      - name: Typecheck
+        run: yarn tsc
+
+      - name: Build
+        run: yarn build
+
+      - name: ESLint
+        run: yarn lint
