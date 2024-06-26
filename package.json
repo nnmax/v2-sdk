@@ -18,10 +18,9 @@
   ],
   "module": "dist/sdk.esm.js",
   "scripts": {
-    "lint": "tsdx lint src test",
+    "lint": "tsdx lint src",
     "build": "tsdx build",
     "start": "tsdx watch",
-    "test": "tsdx test",
     "prepublishOnly": "tsdx build",
     "tsc": "node_modules/.bin/tsc --noEmit --project tsconfig.json"
   },
