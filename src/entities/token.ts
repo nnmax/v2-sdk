@@ -70,6 +70,6 @@ if (!BLAST_WETH_ADDRESS) {
 }
 
 export const WETH = {
-  [ChainId.BLAST]: new Token(ChainId.BLAST, BLAST_TESTNET_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether'),
-  [ChainId.BLAST_TESTNET]: new Token(ChainId.BLAST_TESTNET, BLAST_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether')
+  [ChainId.BLAST]: new Token(ChainId.BLAST, BLAST_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether'),
+  [ChainId.BLAST_TESTNET]: new Token(ChainId.BLAST_TESTNET, BLAST_TESTNET_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether')
 }
