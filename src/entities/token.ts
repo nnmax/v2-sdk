@@ -56,13 +56,20 @@ export function currencyEquals(currencyA: Currency, currencyB: Currency): boolea
   }
 }
 
+const [BLAST_TESTNET_WETH_ADDRESS, BLAST_WETH_ADDRESS] = [
+  process.env.REACT_APP_BLAST_TESTNET_WETH_ADDRESS,
+  process.env.REACT_APP_BLAST_WETH_ADDRESS
+]
+
+if (!BLAST_TESTNET_WETH_ADDRESS) {
+  throw new Error(`REACT_APP_BLAST_TESTNET_WETH_ADDRESS must be a defined environment variable`)
+}
+
+if (!BLAST_WETH_ADDRESS) {
+  throw new Error(`REACT_APP_BLAST_WETH_ADDRESS must be a defined environment variable`)
+}
+
 export const WETH = {
-  [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4200000000000000000000000000000000000023', 18, 'WETH', 'Wrapped Ether'),
-  [ChainId.BLAST_TESTNET]: new Token(
-    ChainId.BLAST_TESTNET,
-    '0x4200000000000000000000000000000000000023',
-    18,
-    'WETH',
-    'Wrapped Ether'
-  )
+  [ChainId.BLAST]: new Token(ChainId.BLAST, BLAST_TESTNET_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether'),
+  [ChainId.BLAST_TESTNET]: new Token(ChainId.BLAST_TESTNET, BLAST_WETH_ADDRESS, 18, 'WETH', 'Wrapped Ether')
 }
