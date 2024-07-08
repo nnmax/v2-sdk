@@ -1,7 +1,7 @@
 {
   "name": "@nnmax/uniswap-sdk-v2",
   "license": "MIT",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +16,7 @@
     "uniswap",
     "ethereum"
   ],
-  "module": "dist/sdk.esm.js",
+  "module": "dist/uniswap-sdk-v2.esm.js",
   "scripts": {
     "lint": "tsdx lint src",
     "build": "tsdx build",
