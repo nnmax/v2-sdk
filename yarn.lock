@@ -1360,6 +1360,7 @@ __metadata:
     tiny-warning: "npm:^1.0.3"
     toformat: "npm:^2.0.0"
     tsdx: "npm:^0.12.3"
+    typescript: "npm:^5.5.3"
   languageName: unknown
   linkType: soft
 
@@ -8542,6 +8543,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^5.5.3":
+  version: 5.5.3
+  resolution: "typescript@npm:5.5.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/11a867312419ed497929aafd2f1d28b2cd41810a5eb6c6e9e169559112e9ea073d681c121a29102e67cd4478d0a4ae37a306a5800f3717f59c4337e6a9bd5e8d
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@npm%3A^3.7.3#optional!builtin<compat/typescript>":
   version: 3.9.7
   resolution: "typescript@patch:typescript@npm%3A3.9.7#optional!builtin<compat/typescript>::version=3.9.7&hash=3bd3d3"
@@ -8549,6 +8560,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/f7976064dd43c8eb53d53c024ac6f6e8d0c4ee5477ed257a92c05dd888593bfccbc6f4f1f934a3d09391d38a42b5e51ef1366979b906a140954a46d48ed3860f
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.5.3#optional!builtin<compat/typescript>":
+  version: 5.5.3
+  resolution: "typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>::version=5.5.3&hash=b45daf"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/b61b8bb4b4d6a8a00f9d5f931f8c67070eed6ad11feabf4c41744a326987080bfc806a621596c70fbf2e5974eca3ed65bafeeeb22a078071bdfb51d8abd7c013
   languageName: node
   linkType: hard
 
