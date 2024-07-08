@@ -1,4 +1,5 @@
 import JSBI from 'jsbi'
+import ENV from 'src/env'
 
 // exports for external consumption
 export type BigintIsh = JSBI | bigint | string
@@ -19,9 +20,9 @@ export enum Rounding {
   ROUND_UP
 }
 
-export const FACTORY_ADDRESS = process.env.REACT_APP_FACTORY_ADDRESS
+export const FACTORY_ADDRESS = ENV.REACT_APP_FACTORY_ADDRESS
 
-export const INIT_CODE_HASH = process.env.REACT_APP_INIT_CODE_HASH
+export const INIT_CODE_HASH = ENV.REACT_APP_INIT_CODE_HASH
 
 export const MINIMUM_LIQUIDITY = JSBI.BigInt(1000)
 

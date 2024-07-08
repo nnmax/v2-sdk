@@ -2,6 +2,7 @@ import invariant from 'tiny-invariant'
 import { ChainId } from '../constants'
 import { validateAndParseAddress } from '../utils'
 import { Currency } from './currency'
+import ENV from 'src/env'
 
 /**
  * Represents an ERC20 token with a unique address and some metadata.
@@ -57,8 +58,8 @@ export function currencyEquals(currencyA: Currency, currencyB: Currency): boolea
 }
 
 const [BLAST_TESTNET_WETH_ADDRESS, BLAST_WETH_ADDRESS] = [
-  process.env.REACT_APP_BLAST_TESTNET_WETH_ADDRESS,
-  process.env.REACT_APP_BLAST_WETH_ADDRESS
+  ENV.REACT_APP_BLAST_TESTNET_WETH_ADDRESS,
+  ENV.REACT_APP_BLAST_WETH_ADDRESS
 ]
 
 if (!BLAST_TESTNET_WETH_ADDRESS) {
