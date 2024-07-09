@@ -1,3 +1,4 @@
-const ENV = typeof process === 'undefined' ? (typeof window === 'undefined' ? {} : (window as any).ENV) : process.env
+// @ts-expect-error - no types for Vite env
+const ENV = import.meta.env
 
 export default ENV
