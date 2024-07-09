@@ -58,16 +58,16 @@ export function currencyEquals(currencyA: Currency, currencyB: Currency): boolea
 }
 
 const [BLAST_TESTNET_WETH_ADDRESS, BLAST_WETH_ADDRESS] = [
-  ENV.REACT_APP_BLAST_TESTNET_WETH_ADDRESS,
-  ENV.REACT_APP_BLAST_WETH_ADDRESS
+  ENV.VITE_BLAST_TESTNET_WETH_ADDRESS,
+  ENV.VITE_BLAST_WETH_ADDRESS
 ]
 
 if (!BLAST_TESTNET_WETH_ADDRESS) {
-  throw new Error(`REACT_APP_BLAST_TESTNET_WETH_ADDRESS must be a defined environment variable`)
+  throw new Error(`VITE_BLAST_TESTNET_WETH_ADDRESS must be a defined environment variable`)
 }
 
 if (!BLAST_WETH_ADDRESS) {
-  throw new Error(`REACT_APP_BLAST_WETH_ADDRESS must be a defined environment variable`)
+  throw new Error(`VITE_BLAST_WETH_ADDRESS must be a defined environment variable`)
 }
 
 export const WETH = {
