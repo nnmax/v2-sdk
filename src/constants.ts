@@ -1,5 +1,5 @@
 import JSBI from 'jsbi'
-import ENV from 'src/env'
+import ENV from './env'
 
 // exports for external consumption
 export type BigintIsh = JSBI | bigint | string
