@@ -141,4 +141,13 @@ export class Fraction {
     Big.RM = toFixedRounding[rounding]
     return new Big(this.numerator.toString()).div(this.denominator.toString()).toFormat(decimalPlaces, format)
   }
+
+  public static from(decimal: string) {
+    const hasDot = decimal.includes('.')
+    const decimalLength = decimal.length
+    const decimalIndex = decimal.indexOf('.')
+    const numerator = decimal.replace('.', '')
+    const denominator = hasDot ? BigInt(10 ** (decimalLength - decimalIndex - 1)) : BigInt(1)
+    return new this(numerator, denominator)
+  }
 }
