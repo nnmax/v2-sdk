@@ -18,7 +18,6 @@
   ],
   "module": "dist/uniswap-sdk-v2.esm.js",
   "scripts": {
-    "lint": "tsdx lint src",
     "build": "tsdx build",
     "start": "tsdx watch",
     "prepublishOnly": "tsdx build",
