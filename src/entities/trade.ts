@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 
-import { ChainId, ONE, TradeType, ZERO } from '../constants'
+import { _100, ChainId, ONE, TradeType, ZERO } from '../constants'
 import { sortedInsert } from '../utils'
 import { Currency, ETHER } from './currency'
 import { CurrencyAmount } from './fractions/currencyAmount'
@@ -11,6 +11,42 @@ import { TokenAmount } from './fractions/tokenAmount'
 import { Pair } from './pair'
 import { Route } from './route'
 import { currencyEquals, Token, WETH } from './token'
+
+export interface KyberswapRoutesData {
+  tokenIn: string
+  amountIn: string
+  amountInUsd: string
+  tokenInMarketPriceAvailable: boolean
+  tokenOut: string
+  amountOut: string
+  amountOutUsd: string
+  tokenOutMarketPriceAvailable: boolean
+  gas: string
+  gasPrice: string
+  gasUsd: string
+  extraFee: {
+    feeAmount: string
+    chargeFeeBy: 'currency_in'
+    isInBps: boolean
+    feeReceiver: string
+  }
+  route: [
+    [
+      {
+        pool: string
+        tokenIn: string
+        tokenOut: string
+        limitReturnAmount: string
+        swapAmount: string
+        amountOut: string
+        exchange: string
+        poolType: string
+        poolExtra: string
+        extra: string
+      }
+    ]
+  ]
+}
 
 /**
  * Returns the percent difference between the mid price and the execution price, i.e. price impact.
@@ -23,6 +59,17 @@ function computePriceImpact(midPrice: Price, inputAmount: CurrencyAmount, output
   // calculate slippage := (exactQuote - outputAmount) / exactQuote
   const slippage = exactQuote.subtract(outputAmount.raw).divide(exactQuote)
   return new Percent(slippage.numerator, slippage.denominator)
+}
+
+function computeKyberPriceImpact(amountInUsd: string, amountOutUsd: string) {
+  if (!amountOutUsd) return
+  const amountInUsdPercent = Percent.from(amountInUsd)
+  const amountOutUsdPercent = Percent.from(amountOutUsd)
+  if (amountInUsdPercent.lessThan(amountOutUsdPercent)) new Percent(ZERO)
+  return amountInUsdPercent
+    .subtract(amountOutUsdPercent)
+    .multiply(_100)
+    .divide(amountInUsdPercent)
 }
 
 // minimal interface so the input output comparator may be shared across types
@@ -80,6 +127,7 @@ export interface BestTradeOptions {
   maxNumResults?: number
   // the maximum number of hops a trade should contain
   maxHops?: number
+  kyberswapRoutesData?: KyberswapRoutesData
 }
 
 /**
@@ -132,14 +180,17 @@ export class Trade {
    * The percent difference between the mid price before the trade and the trade execution price.
    */
   public readonly priceImpact: Percent
+  public readonly kyberPriceImpact?: Percent
+  public readonly useKyber: boolean
+  public readonly kyberswapRoutesData?: KyberswapRoutesData
 
   /**
    * Constructs an exact in trade with the given amount in and route
    * @param route route of the exact in trade
    * @param amountIn the amount being passed in
    */
-  public static exactIn(route: Route, amountIn: CurrencyAmount): Trade {
-    return new Trade(route, amountIn, TradeType.EXACT_INPUT)
+  public static exactIn(route: Route, amountIn: CurrencyAmount, kyberswapRoutesData?: KyberswapRoutesData): Trade {
+    return new Trade(route, amountIn, TradeType.EXACT_INPUT, kyberswapRoutesData)
   }
 
   /**
@@ -147,11 +198,16 @@ export class Trade {
    * @param route route of the exact out trade
    * @param amountOut the amount returned by the trade
    */
-  public static exactOut(route: Route, amountOut: CurrencyAmount): Trade {
-    return new Trade(route, amountOut, TradeType.EXACT_OUTPUT)
+  public static exactOut(route: Route, amountOut: CurrencyAmount, kyberswapRoutesData?: KyberswapRoutesData): Trade {
+    return new Trade(route, amountOut, TradeType.EXACT_OUTPUT, kyberswapRoutesData)
   }
 
-  public constructor(route: Route, amount: CurrencyAmount, tradeType: TradeType) {
+  public constructor(
+    route: Route,
+    amount: CurrencyAmount,
+    tradeType: TradeType,
+    kyberswapRoutesData?: KyberswapRoutesData
+  ) {
     const amounts: TokenAmount[] = new Array(route.path.length)
     const nextPairs: Pair[] = new Array(route.pairs.length)
     if (tradeType === TradeType.EXACT_INPUT) {
@@ -176,18 +232,36 @@ export class Trade {
 
     this.route = route
     this.tradeType = tradeType
-    this.inputAmount =
-      tradeType === TradeType.EXACT_INPUT
-        ? amount
-        : route.input === ETHER
-        ? CurrencyAmount.ether(amounts[0].raw)
-        : amounts[0]
-    this.outputAmount =
-      tradeType === TradeType.EXACT_OUTPUT
-        ? amount
-        : route.output === ETHER
-        ? CurrencyAmount.ether(amounts[amounts.length - 1].raw)
-        : amounts[amounts.length - 1]
+    this.useKyber = !!kyberswapRoutesData
+    this.kyberswapRoutesData = kyberswapRoutesData
+    if (kyberswapRoutesData) {
+      this.inputAmount =
+        tradeType === TradeType.EXACT_INPUT
+          ? amount
+          : route.input === ETHER
+          ? CurrencyAmount.ether(kyberswapRoutesData.amountIn)
+          : new TokenAmount(amount.currency as Token, kyberswapRoutesData.amountIn)
+      this.outputAmount =
+        tradeType === TradeType.EXACT_OUTPUT
+          ? amount
+          : route.output === ETHER
+          ? CurrencyAmount.ether(kyberswapRoutesData.amountOut)
+          : new TokenAmount(amounts[amounts.length - 1].token, kyberswapRoutesData.amountOut)
+      this.kyberPriceImpact = computeKyberPriceImpact(kyberswapRoutesData.amountInUsd, kyberswapRoutesData.amountOutUsd)
+    } else {
+      this.inputAmount =
+        tradeType === TradeType.EXACT_INPUT
+          ? amount
+          : route.input === ETHER
+          ? CurrencyAmount.ether(amounts[0].raw)
+          : amounts[0]
+      this.outputAmount =
+        tradeType === TradeType.EXACT_OUTPUT
+          ? amount
+          : route.output === ETHER
+          ? CurrencyAmount.ether(amounts[amounts.length - 1].raw)
+          : amounts[amounts.length - 1]
+    }
     this.executionPrice = new Price(
       this.inputAmount.currency,
       this.outputAmount.currency,
@@ -251,7 +325,7 @@ export class Trade {
     pairs: Pair[],
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
-    { maxNumResults = 3, maxHops = 3 }: BestTradeOptions = {},
+    { maxNumResults = 3, maxHops = 3, kyberswapRoutesData }: BestTradeOptions = {},
     // used in recursion.
     currentPairs: Pair[] = [],
     originalAmountIn: CurrencyAmount = currencyAmountIn,
@@ -293,7 +367,8 @@ export class Trade {
           new Trade(
             new Route([...currentPairs, pair], originalAmountIn.currency, currencyOut),
             originalAmountIn,
-            TradeType.EXACT_INPUT
+            TradeType.EXACT_INPUT,
+            kyberswapRoutesData
           ),
           maxNumResults,
           tradeComparator
@@ -308,7 +383,8 @@ export class Trade {
           currencyOut,
           {
             maxNumResults,
-            maxHops: maxHops - 1
+            maxHops: maxHops - 1,
+            kyberswapRoutesData
           },
           [...currentPairs, pair],
           originalAmountIn,
@@ -339,7 +415,7 @@ export class Trade {
     pairs: Pair[],
     currencyIn: Currency,
     currencyAmountOut: CurrencyAmount,
-    { maxNumResults = 3, maxHops = 3 }: BestTradeOptions = {},
+    { maxNumResults = 3, maxHops = 3, kyberswapRoutesData }: BestTradeOptions = {},
     // used in recursion.
     currentPairs: Pair[] = [],
     originalAmountOut: CurrencyAmount = currencyAmountOut,
@@ -381,7 +457,8 @@ export class Trade {
           new Trade(
             new Route([pair, ...currentPairs], currencyIn, originalAmountOut.currency),
             originalAmountOut,
-            TradeType.EXACT_OUTPUT
+            TradeType.EXACT_OUTPUT,
+            kyberswapRoutesData
           ),
           maxNumResults,
           tradeComparator
@@ -396,7 +473,8 @@ export class Trade {
           amountIn,
           {
             maxNumResults,
-            maxHops: maxHops - 1
+            maxHops: maxHops - 1,
+            kyberswapRoutesData
           },
           [pair, ...currentPairs],
           originalAmountOut,
