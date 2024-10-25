@@ -9,7 +9,7 @@ on:
 
 env:
   HUSKY: 0
-  YARN_ENABLE_GLOBAL_CACHE: false
+  YARN_ENABLE_GLOBAL_CACHE: true
   YARN_ENABLE_MIRROR: false
   YARN_NM_MODE: hardlinks-local
 
