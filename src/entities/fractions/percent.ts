@@ -11,4 +11,10 @@ export class Percent extends Fraction {
   public toFixed(decimalPlaces: number = 2, format?: object, rounding?: Rounding): string {
     return this.multiply(_100_PERCENT).toFixed(decimalPlaces, format, rounding)
   }
+
+  public static from(decimal: string | number): Percent {
+    const value = super.from(decimal)
+    const percent = new Percent(value.numerator, value.denominator).divide(_100_PERCENT)
+    return new Percent(percent.numerator, percent.denominator)
+  }
 }

@@ -4,7 +4,7 @@ import _Decimal from 'decimal.js-light'
 import _Big, { RoundingMode } from 'big.js'
 import toFormat from 'toformat'
 
-import { BigintIsh, Rounding } from '../../constants'
+import { BigintIsh, Rounding, ZERO } from '../../constants'
 import { ONE } from '../../constants'
 import { parseBigintIsh } from '../../utils'
 
@@ -142,11 +142,21 @@ export class Fraction {
     return new Big(this.numerator.toString()).div(this.denominator.toString()).toFormat(decimalPlaces, format)
   }
 
-  public static from(decimal: string) {
-    const hasDot = decimal.includes('.')
-    const decimalLength = decimal.length
-    const decimalIndex = decimal.indexOf('.')
-    const numerator = decimal.replace('.', '')
+  public static from(decimal: string | number) {
+    let decimalString: string
+    if (typeof decimal === 'number') {
+      if (Number.isNaN(decimal)) return new this(ZERO)
+      decimalString = String(decimal)
+    } else {
+      if (!decimal) return new this(ZERO)
+      if (Number.isNaN(Number(decimal))) return new this(ZERO)
+      if (decimal.startsWith('.')) decimalString = `0${decimal}`
+      else decimalString = decimal
+    }
+    const decimalIndex = decimalString.indexOf('.')
+    const hasDot = decimalIndex !== -1
+    const decimalLength = decimalString.length
+    const numerator = decimalString.replace('.', '')
     const denominator = hasDot ? BigInt(10 ** (decimalLength - decimalIndex - 1)) : BigInt(1)
     return new this(numerator, denominator)
   }

@@ -24,6 +24,7 @@ export interface KyberswapRoutesData {
   gas: string
   gasPrice: string
   gasUsd: string
+  priceImpact?: number
   extraFee: {
     feeAmount: string
     chargeFeeBy: 'currency_in'
@@ -59,17 +60,6 @@ function computePriceImpact(midPrice: Price, inputAmount: CurrencyAmount, output
   // calculate slippage := (exactQuote - outputAmount) / exactQuote
   const slippage = exactQuote.subtract(outputAmount.raw).divide(exactQuote)
   return new Percent(slippage.numerator, slippage.denominator)
-}
-
-function computeKyberPriceImpact(amountInUsd: string, amountOutUsd: string) {
-  if (!amountOutUsd) return
-  const amountInUsdPercent = Percent.from(amountInUsd)
-  const amountOutUsdPercent = Percent.from(amountOutUsd)
-  if (amountInUsdPercent.lessThan(amountOutUsdPercent)) new Percent(ZERO)
-  return amountInUsdPercent
-    .subtract(amountOutUsdPercent)
-    .multiply(_100)
-    .divide(amountInUsdPercent)
 }
 
 // minimal interface so the input output comparator may be shared across types
@@ -247,7 +237,10 @@ export class Trade {
           : route.output === ETHER
           ? CurrencyAmount.ether(kyberswapRoutesData.amountOut)
           : new TokenAmount(amounts[amounts.length - 1].token, kyberswapRoutesData.amountOut)
-      this.kyberPriceImpact = computeKyberPriceImpact(kyberswapRoutesData.amountInUsd, kyberswapRoutesData.amountOutUsd)
+      this.kyberPriceImpact = typeof kyberswapRoutesData.priceImpact === 'number'
+        ? Percent.from(kyberswapRoutesData.priceImpact)
+        : undefined
+      delete kyberswapRoutesData.priceImpact
     } else {
       this.inputAmount =
         tradeType === TradeType.EXACT_INPUT
