@@ -116,7 +116,7 @@ export class Fraction {
 
   public toSignificant(
     significantDigits: number,
-    format: object = { groupSeparator: '' },
+    format = { groupSeparator: '' },
     rounding: Rounding = Rounding.ROUND_HALF_UP
   ): string {
     invariant(Number.isInteger(significantDigits), `${significantDigits} is not an integer.`)
@@ -131,7 +131,7 @@ export class Fraction {
 
   public toFixed(
     decimalPlaces: number,
-    format: object = { groupSeparator: '' },
+    format = { groupSeparator: '' },
     rounding: Rounding = Rounding.ROUND_HALF_UP
   ): string {
     invariant(Number.isInteger(decimalPlaces), `${decimalPlaces} is not an integer.`)
@@ -140,6 +140,10 @@ export class Fraction {
     Big.DP = decimalPlaces
     Big.RM = toFixedRounding[rounding]
     return new Big(this.numerator.toString()).div(this.denominator.toString()).toFormat(decimalPlaces, format)
+  }
+
+  public toString(): string {
+    return new _Big(this.numerator.toString()).div(this.denominator.toString()).toString()
   }
 
   public static from(decimal: string | number) {
